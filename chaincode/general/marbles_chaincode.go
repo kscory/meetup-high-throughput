@@ -208,7 +208,6 @@ func (t *SimpleChaincode) transferMarbles(stub shim.ChaincodeStubInterface, args
 	return shim.Success(nil)
 }
 
-// readMarbles - read a marble from chaincode state
 /**
  * readMarbles - read a marble from chaincode state
  * to give in the args array are as follows:
