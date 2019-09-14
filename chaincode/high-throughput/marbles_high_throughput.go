@@ -193,6 +193,9 @@ func (t *HighThroughputChaincode) transferMarbles(stub shim.ChaincodeStubInterfa
 		return shim.Error(err.Error())
 	}
 	err = stub.PutState(compositeKey, []byte{0x00})
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 
 	return shim.Success(nil)
 }
