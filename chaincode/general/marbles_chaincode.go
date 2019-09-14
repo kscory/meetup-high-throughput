@@ -23,12 +23,15 @@ type marbleResponse struct {
 	amount int         `json:"amount"`
 }
 
+const (
+	FUNCTION_INIT = "initMarbles"
+	FUNCTION_TRANSFER = "transferMarbles"
+	FUNCTION_READ = "readMarbles"
+)
+
 type SimpleChaincode struct {
 }
 
-// ===================================================================================
-// Main
-// ===================================================================================
 func main() {
 	err := shim.Start(new(SimpleChaincode))
 	if err != nil {
@@ -45,11 +48,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("invoke is running " + function)
 
 	// Handle different functions
-	if function == "initMarbles" {
+	if function == FUNCTION_INIT {
 		return t.initMarbles(stub, args)
-	} else if function == "transferMarbles" {
+	} else if function == FUNCTION_TRANSFER {
 		return t.transferMarbles(stub, args)
-	} else if function == "readMarbles" {
+	} else if function == FUNCTION_READ {
 		return t.readMarbles(stub, args)
 	}
 
@@ -162,7 +165,7 @@ func (t *SimpleChaincode) transferMarbles(stub shim.ChaincodeStubInterface, args
 		return shim.Error("Marble does not exist")
 	}
 
-	// check sender amount is existed
+	// check sender amount
 	senderAmountAsBytes, err := stub.GetState(sender + marbleName)
 	if err != nil {
 		return shim.Error("Failed to get sender amount of marbles:" + err.Error())
