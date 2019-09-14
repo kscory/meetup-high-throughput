@@ -1,7 +1,6 @@
 package util
 
 import (
-	"bytes"
 	"fmt"
 	"testing"
 
@@ -20,20 +19,8 @@ func CheckState(t *testing.T, stub *shim.MockStub, name string, value string) {
 	}
 }
 
-func CheckStateWithByte(t *testing.T, stub *shim.MockStub, name string, value []byte) {
-	byteState := stub.State[name]
-	if byteState == nil {
-		fmt.Println("State", name, "failed to get value")
-		t.FailNow()
-	}
-	if bytes.Compare(byteState, value) != 0 {
-		fmt.Println("State value", byteState, "was not", value, "as expected")
-		t.FailNow()
-	}
-}
-
-func CheckQuery(t *testing.T, stub *shim.MockStub, args [][]byte, expect string) {
-	res := stub.MockInvoke("1", args)
+func CheckQuery(t *testing.T, stub *shim.MockStub, args [][]byte, expect string, txId string) {
+	res := stub.MockInvoke(txId, args)
 	if res.Status != shim.OK {
 		fmt.Println("Query", args, "failed", string(res.Message))
 		t.FailNow()
@@ -48,8 +35,8 @@ func CheckQuery(t *testing.T, stub *shim.MockStub, args [][]byte, expect string)
 	}
 }
 
-func CheckInvoke(t *testing.T, stub *shim.MockStub, args [][]byte) {
-	res := stub.MockInvoke("1", args)
+func CheckInvoke(t *testing.T, stub *shim.MockStub, args [][]byte, txId string) {
+	res := stub.MockInvoke(txId, args)
 	if res.Status != shim.OK {
 		fmt.Println("Invoke", args, "failed", string(res.Message))
 		t.FailNow()

@@ -23,7 +23,7 @@ func initMarble(t *testing.T) *shim.MockStub {
 	arguments := [][]byte{[]byte(FUNCTION_INIT), []byte(sampleMarble.Name),
 		[]byte(sampleMarble.Color), []byte(strconv.Itoa(sampleMarble.Size)),
 		[]byte(strconv.Itoa(totalAmount)), []byte(sender)}
-	util.CheckInvoke(t, stub, arguments)
+	util.CheckInvoke(t, stub, arguments, "1")
 
 	return stub
 }
@@ -51,7 +51,7 @@ func Test_MARBLES_transferMarbles_readMarbles_success(t *testing.T) {
 	// invoke transfer
 	arguments := [][]byte{[]byte(FUNCTION_TRANSFER), []byte(sampleMarble.Name),
 		[]byte(sender), []byte(receiver), []byte(strconv.Itoa(transferAmount))}
-	util.CheckInvoke(t, stub, arguments)
+	util.CheckInvoke(t, stub, arguments, "1")
 
 	// check sender amount state
 	util.CheckState(t, stub, sender + sampleMarble.Name, strconv.Itoa(totalAmount - transferAmount))
@@ -70,22 +70,22 @@ func Test_MARBLES_readMarbles_success(t *testing.T) {
 	receiverResult := &marbleResponse{sampleMarble, receiver, 0}
 	receiverResultBytes, _ := json.Marshal(receiverResult)
 	arguments := [][]byte{[]byte(FUNCTION_READ), []byte(sampleMarble.Name), []byte(receiver)}
-	util.CheckQuery(t, stub, arguments, string(receiverResultBytes))
+	util.CheckQuery(t, stub, arguments, string(receiverResultBytes), "1")
 
 	// invoke transfer
 	arguments = [][]byte{[]byte(FUNCTION_TRANSFER), []byte(sampleMarble.Name),
 		[]byte(sender), []byte(receiver), []byte(strconv.Itoa(transferAmount))}
-	util.CheckInvoke(t, stub, arguments)
+	util.CheckInvoke(t, stub, arguments, "1")
 
 	// check sender query
 	senderResult := &marbleResponse{sampleMarble, sender, totalAmount - transferAmount}
 	senderResultBytes, _ := json.Marshal(senderResult)
 	arguments = [][]byte{[]byte(FUNCTION_READ), []byte(sampleMarble.Name), []byte(sender)}
-	util.CheckQuery(t, stub, arguments, string(senderResultBytes))
+	util.CheckQuery(t, stub, arguments, string(senderResultBytes), "1")
 
 	// check receiver query
 	receiverResult = &marbleResponse{sampleMarble, receiver, transferAmount}
 	receiverResultBytes, _ = json.Marshal(receiverResult)
 	arguments = [][]byte{[]byte(FUNCTION_READ), []byte(sampleMarble.Name), []byte(receiver)}
-	util.CheckQuery(t, stub, arguments, string(receiverResultBytes))
+	util.CheckQuery(t, stub, arguments, string(receiverResultBytes), "1")
 }

@@ -172,13 +172,13 @@ func (t *SimpleChaincode) transferMarbles(stub shim.ChaincodeStubInterface, args
 	} else if senderAmountAsBytes == nil {
 		return shim.Error("Sender does not have marbles")
 	}
-	sendAmount, err := strconv.Atoi(string(senderAmountAsBytes))
+	senderAmount, err := strconv.Atoi(string(senderAmountAsBytes))
 	if err != nil {
 		return shim.Error("Failed to get sender amount of marbles:" + err.Error())
 	}
 
 	// check sender can transfer amount
-	if sendAmount < amount {
+	if senderAmount < amount {
 		return shim.Error("Cannot transfer amount:")
 	}
 
@@ -195,7 +195,7 @@ func (t *SimpleChaincode) transferMarbles(stub shim.ChaincodeStubInterface, args
 	}
 
 	// Save amount
-	err = stub.PutState(sender+marbleName, []byte(strconv.Itoa(sendAmount-amount)))
+	err = stub.PutState(sender+marbleName, []byte(strconv.Itoa(senderAmount-amount)))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
