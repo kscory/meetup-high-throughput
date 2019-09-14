@@ -20,6 +20,14 @@ func CheckState(t *testing.T, stub *shim.MockStub, name string, value string) {
 	}
 }
 
+func CheckStateNotExisted(t *testing.T, stub *shim.MockStub, name string) {
+	byteState := stub.State[name]
+	if byteState != nil {
+		fmt.Println("State", name, "is existed")
+		t.FailNow()
+	}
+}
+
 func CheckQuery(t *testing.T, stub *shim.MockStub, args [][]byte, expect string, txId string) {
 	res := stub.MockInvoke(txId, args)
 	if res.Status != shim.OK {
