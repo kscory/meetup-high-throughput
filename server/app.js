@@ -54,11 +54,11 @@ app.use(bodyParser.urlencoded({
 }));
 // set secret variable
 app.set('secret', 'thisismysecret');
-app.use(expressJWT({
-	secret: 'thisismysecret'
-}).unless({
-	path: ['/users']
-}));
+// app.use(expressJWT({
+// 	secret: 'thisismysecret'
+// }).unless({
+// 	path: ['/users']
+// }));
 app.use(bearerToken());
 app.use(function(req, res, next) {
 	logger.debug(' ------>>>>>> new request for %s',req.originalUrl);
@@ -67,24 +67,31 @@ app.use(function(req, res, next) {
 	}
 
 	var token = req.token;
-	jwt.verify(token, app.get('secret'), function(err, decoded) {
-		if (err) {
-			res.send({
-				success: false,
-				message: 'Failed to authenticate token. Make sure to include the ' +
-					'token returned from /users call in the authorization header ' +
-					' as a Bearer token'
-			});
-			return;
-		} else {
-			// add the decoded user name and org name to the request object
-			// for the downstream code to use
-			req.username = decoded.username;
-			req.orgname = decoded.orgName;
-			logger.debug(util.format('Decoded from JWT token: username - %s, orgname - %s', decoded.username, decoded.orgName));
-			return next();
-		}
-	});
+	// token 을 넣지 않고 사용하도록 임시로 변경
+	if (token === "pass") {
+		req.username = "Jim";
+		req.orgname = "Org1";
+		return next();
+	} else {
+		jwt.verify(token, 'thisismysecret', function (err, decoded) {
+			if (err) {
+				res.send({
+					success: false,
+					message: 'Failed to authenticate token. Make sure to include the ' +
+						'token returned from /users call in the authorization header ' +
+						' as a Bearer token'
+				});
+				return;
+			} else {
+				// add the decoded user name and org name to the request object
+				// for the downstream code to use
+				req.username = decoded.username;
+				req.orgname = decoded.orgName;
+				logger.debug(util.format('Decoded from JWT token: username - %s, orgname - %s', decoded.username, decoded.orgName));
+				return next();
+			}
+		});
+	}
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -426,5 +433,83 @@ app.get('/channels', async function(req, res) {
 	}
 
 	let message = await query.getChannels(peer, req.username, req.orgname);
+	res.send(message);
+});
+
+
+// ==================== high throughput solution =====================
+const total_balance = {};
+
+app.post('/high/channels/:channelName/chaincodes/:chaincodeName', async function(req, res) {
+	logger.debug('==================== INVOKE ON CHAINCODE ==================');
+	var peers = req.body.peers;
+	var chaincodeName = req.params.chaincodeName;
+	var channelName = req.params.channelName;
+	var fcn = req.body.fcn;
+	var args = req.body.args;
+	logger.debug('channelName  : ' + channelName);
+	logger.debug('chaincodeName : ' + chaincodeName);
+	logger.debug('fcn  : ' + fcn);
+	logger.debug('args  : ' + args);
+	if (!chaincodeName) {
+		res.json(getErrorMessage('\'chaincodeName\''));
+		return;
+	}
+	if (!channelName) {
+		res.json(getErrorMessage('\'channelName\''));
+		return;
+	}
+	if (!fcn) {
+		res.json(getErrorMessage('\'fcn\''));
+		return;
+	}
+	if (!args || !Array.isArray(args)) {
+		res.json(getErrorMessage('\'args\''));
+		return;
+	}
+
+	if (fcn === "initMarbles") {
+		if (args.length !== 5) {
+			return res.json(getErrorMessage('\'args\''));
+		}
+
+		// check amount(args[4]) is numeric
+		const owner = args[4];
+		const amount = Number(args[3]);
+		if (!amount) {
+			return res.json(getErrorMessage('\'amount arguments\''));
+		}
+		total_balance[owner] = amount;
+	} else if (fcn === "transferMarbles") {
+		if (args.length !== 4) {
+			return res.json(getErrorMessage('\'args\''));
+		}
+
+		// check amount(args[3]) is numeric
+		const sender = args[1];
+		const receiver = args[2];
+		const amount = Number(args[3]);
+		if (!amount) {
+			return res.json(getErrorMessage('\'amount arguments\''));
+		}
+
+		// check balance
+		if (!total_balance[sender] || total_balance[sender] < amount) {
+			return res.json(getErrorMessage('\'amount value is not valid\''));
+		}
+
+		// calculate total balance
+		total_balance[sender] -= amount;
+		if (total_balance[receiver]) {
+			total_balance[receiver] += amount;
+		} else {
+			total_balance[receiver] = amount;
+		}
+
+		logger.info('totalBalance  : ' + total_balance);
+	}
+
+
+	let message = await invoke.invokeChaincode(peers, channelName, chaincodeName, fcn, args, req.username, req.orgname);
 	res.send(message);
 });
