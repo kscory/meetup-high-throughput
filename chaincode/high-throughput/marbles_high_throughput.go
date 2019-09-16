@@ -1,4 +1,4 @@
-package general
+package highthroughput
 
 import (
 	"encoding/json"
