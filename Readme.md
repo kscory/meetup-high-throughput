@@ -8,7 +8,7 @@ This is Fabric High Throuput Code for Hyperledger Meetup
 * [Docker Compose](https://docs.docker.com/compose/overview/) - v1.8 or higher
 * [Git client](https://git-scm.com/downloads) - needed for clone commands
 * **Node.js** v8.9.x
-* * **Go** v1.11.x
+* **Go** v1.11.x
 * [Download Docker images](http://hyperledger-fabric.readthedocs.io/en/latest/samples.html#binaries)
 
 ## Test Chaincode without Fabric
