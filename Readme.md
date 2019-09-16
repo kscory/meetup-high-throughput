@@ -25,19 +25,19 @@ install & remove modules with go mod
 $ go mod tidy
 ```
 
-### Test general chaincode:
+test general chaincode:
 
 ```
 $ go test ./general
 ```
 
-### Test high throughput Chaincode:
+test high throughput Chaincode:
 
 ```
 $ go test ./high-throughput
 ```
 
-### Test high throughput removed phantom read Chaincode:
+test high throughput removed phantom read Chaincode:
 
 ```
 $ go test ./high-throughput-phantom
