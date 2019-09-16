@@ -18,9 +18,9 @@ type marble struct {
 }
 
 type marbleResponse struct {
-	marble interface{} `json:"marble"`
-	owner  string      `json:"owner"`
-	amount int         `json:"amount"`
+	Marble interface{} `json:"marble"`
+	Owner  string      `json:"owner"`
+	Amount int         `json:"amount"`
 }
 
 const (
@@ -235,12 +235,12 @@ func (t *HighThroughputChaincode) readMarbles(stub shim.ChaincodeStubInterface, 
 	// if parameter includes owner, return with amount info
 	if len(args) > 1 {
 		owner := args[1]
-		result.owner = owner
+		result.Owner = owner
 		ownerAmount, err := getAmount(stub, name, owner)
 		if err != nil {
 			return shim.Error("Cannot get sender Amount, err: " + err.Error())
 		}
-		result.amount = ownerAmount
+		result.Amount = ownerAmount
 	}
 
 	resultBytes, err := json.Marshal(result)
